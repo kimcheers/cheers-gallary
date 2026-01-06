@@ -48,7 +48,6 @@ async function loadGallery() {
         if (urls.length === 0) {
             display.innerHTML = "<p style='text-align:center;'>아직 업로드된 이미지가 없습니다.</p>";
         } else {
-            // 이미지 클릭 시 원본을 새 창에서 열도록 onclick 추가
             display.innerHTML = urls.map(url => `
                 <img src="${url}" alt="Gallery Image" onclick="window.open('${url}', '_blank')">
             `).join('');

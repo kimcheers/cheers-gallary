@@ -1,12 +1,5 @@
-# 환경 변수 (절대 올라가면 안 됨)
 .env
-
-# 의존성 라이브러리 (용량이 크고 push할 필요 없음)
 node_modules/
-
-# 운영체제 생성 파일
 .DS_Store
 Thumbs.db
-
-# 로그 파일
 *.log
