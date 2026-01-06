@@ -1,0 +1,53 @@
+name: Deploy to EC2 with Docker
+
+on:
+  push:
+    branches: [ "main" ] # main 브랜치에 코드가 push될 때 실행됩니다.
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 1. Docker Hub 로그인 (Secrets에 등록한 kimchies 아이디와 토큰 사용)
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 2. Docker 이미지 빌드 및 푸시
+      - name: Build and push Docker image
+        run: |
+          # kimchies/my-gallery-app 이라는 이름으로 이미지를 만들어 올립니다.
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/my-gallery-app:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-gallery-app:latest
+
+      # 3. SSH를 통해 EC2에 접속하여 배포 명령 실행
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            # 기존 실행 중인 동일 이름의 컨테이너가 있다면 중지 및 삭제
+            sudo docker stop gallery-app || true
+            sudo docker rm gallery-app || true
+            
+            # 최신 이미지 내려받기
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-gallery-app:latest
+            
+            # 새 컨테이너 실행 (GitHub Secrets의 환경변수들을 컨테이너 내부로 주입)
+            sudo docker run -d --name gallery-app -p 80:3000 \
+              -e ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }} \
+              -e AWS_REGION=${{ secrets.AWS_REGION }} \
+              -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
+              -e AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }} \
+              -e S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} \
+              ${{ secrets.DOCKER_USERNAME }}/my-gallery-app:latest
+            
+            # 사용하지 않는 오래된 이미지 정리 (EC2 용량 관리)
+            sudo docker image prune -f

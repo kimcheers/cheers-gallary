@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My gallery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <h1>My gallery</h1>
+        <nav>
+            <a href="#" onclick="showSection('about')">소개</a>
+            <a href="#" onclick="showSection('gallery')">갤러리</a>
+            <a href="#" onclick="showSection('posts')">관리자</a>
+        </nav>
+    </header>
+    <main>
+        <section id="about" class="content-section">
+            <h2>소개</h2>
+            <p>Hello.</p>
+        </section>
+
+        <section id="gallery" class="content-section hidden">
+            <h2>갤러리</h2>
+            <div id="image-display" class="image-grid"></div>
+        </section>
+
+        <section id="posts" class="content-section hidden">
+            <div id="login-box">
+                <h3>관리자 로그인</h3>
+                <input type="password" id="admin-pw" placeholder="비밀번호">
+                <button onclick="handleLogin()">로그인</button>
+            </div>
+            <div id="admin-controls" class="hidden">
+                <h3>S3 이미지 업로드</h3>
+                <input type="file" id="file-input" accept="image/*">
+                <button onclick="handleUpload()">업로드</button>
+            </div>
+        </section>
+
+        <aside>
+            <h3>공지</h3>
+            <p></p>
+        </aside>
+    </main>
+    <footer>
+        <small>ⓒ 2026 kimchies</small>
+    </footer>
+    <script src="script.js"></script>
+</body>
+
+</html>
