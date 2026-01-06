@@ -1,23 +1,22 @@
-require('dotenv').config(); //
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
-const { S3Client, ListObjectsV2Command } = require('@aws-sdk/client-s3'); //
+const { S3Client, ListObjectsV2Command } = require('@aws-sdk/client-s3');
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 const STATIC_PATH = process.env.STATIC_PATH || 'src';
 app.use(express.static(path.join(__dirname, STATIC_PATH)));
 
 const s3 = new S3Client({
-    region: process.env.AWS_REGION, //
+    region: process.env.AWS_REGION,
     credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY, //
-        secretAccessKey: process.env.AWS_SECRET_KEY, //
+        accessKeyId: process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SECRET_KEY,
     }
 });
 
@@ -34,16 +33,20 @@ const upload = multer({
     })
 });
 
-
 app.post('/login', (req, res) => {
     const { password } = req.body;
-    if (password === process.env.ADMIN_PASSWORD) { //
+    if (password === process.env.ADMIN_PASSWORD) {
         isAuthenticated = true;
         res.json({ success: true });
     } else {
         isAuthenticated = false;
         res.status(401).json({ success: false });
     }
+});
+
+app.post('/logout', (req, res) => {
+    isAuthenticated = false;
+    res.json({ success: true });
 });
 
 app.post('/upload', (req, res, next) => {
@@ -67,7 +70,6 @@ app.get('/images', async (req, res) => {
 
         res.json(urls);
     } catch (err) {
-        console.error("S3 목록 불러오기 에러:", err);
         res.status(500).json({ error: err.message });
     }
 });

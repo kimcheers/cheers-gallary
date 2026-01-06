@@ -21,6 +21,17 @@ async function handleLogin() {
     }
 }
 
+async function handleLogout() {
+    const res = await fetch('/logout', { method: 'POST' });
+    if (res.ok) {
+        document.getElementById('admin-controls').classList.add('hidden');
+        document.getElementById('login-box').classList.remove('hidden');
+        document.getElementById('admin-pw').value = '';
+        alert("로그아웃 되었습니다.");
+        showSection('about');
+    }
+}
+
 async function handleUpload() {
     const file = document.getElementById('file-input').files[0];
     if (!file) return alert("업로드할 파일을 선택해주세요.");
